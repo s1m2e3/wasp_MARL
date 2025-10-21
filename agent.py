@@ -1,11 +1,11 @@
 from enum import Enum
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field
 
 class Role(Enum):
     EXPLORER = 1
     COMMUNICATOR = 2
 
-@dataclass (frozen=True)
+@dataclass (frozen=False)
 class Agent:
     role: Role
     id: int
@@ -13,15 +13,15 @@ class Agent:
     y: float
     c: float
     communication_threshold: float
-    centroids: list[tuple(float,float)] = []
-    centroids_schedule: list[int] = []
+    centroids: list = field(default_factory=list)
+    centroids_schedule: list = field(default_factory=list)
     v_max: float = 0
     nest_radius: float = 0
     kappa: float = 0
     sigma: float = 0
     sensing_radius: float = 0
     loading_state: bool = False
-    exploration_centroid: tuple(float,float) = (0,0)
+    exploration_centroid: tuple = (0,0)
     exploration_radius: float = 0
     t: int = 0
-    seen_neighbors: list = []
+    seen_neighbors: list = field(default_factory=list)

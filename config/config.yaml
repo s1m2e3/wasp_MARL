@@ -9,4 +9,9 @@ agent:
   sigma: 2
   sensing_radius: 3
   loading_state: False
-  
+simulator:
+  simulation_length: 100
+  proportion_explorers: 0.5
+  exploration_radius: 8
+  exploration_period: 50
+  num_agents: 10
