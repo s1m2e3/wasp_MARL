@@ -9,6 +9,8 @@ agent:
   sigma: 2
   sensing_radius: 3
   loading_state: False
+  communication_threshold_decay: 0.9
+  exploration_buffer_radius: 2
 simulator:
   simulation_length: 100
   proportion_explorers: 0.5

@@ -25,3 +25,5 @@ class Agent:
     exploration_radius: float = 0
     t: int = 0
     seen_neighbors: list = field(default_factory=list)
+    communication_threshold_decay: float = 0.9
+    exploration_buffer_radius: float = 2

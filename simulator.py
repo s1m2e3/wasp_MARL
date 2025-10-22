@@ -12,6 +12,6 @@ class Simulator:
                 self.step(agent,agents)
     def step(self,agent,agents):
         mover = MovementService()
-        communicator = CommunicationService()
+        # communicator = CommunicationService()
         mover.move(agent,agents)
-        communicator.communicate(agent,agents)
+        # communicator.communicate(agent,agents)
