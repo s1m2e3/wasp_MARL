@@ -8,10 +8,10 @@ class Simulator:
         planner.plan_routes(agents,exploration_radius,exploration_period)
         for t in range(simulation_length):
             for agent in agents:
-                agent.t = t
-                self.step(agent,agents)
-    def step(self,agent,agents):
+                self.step(agent,agents,t)
+            
+    def step(self,agent,agents,t):
         mover = MovementService()
         # communicator = CommunicationService()
-        mover.move(agent,agents)
+        mover.move(agent,agents,t)
         # communicator.communicate(agent,agents)

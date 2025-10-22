@@ -19,7 +19,6 @@ class PlanningService:
             agent.exploration_centroid = (np.cos(counter*degree_partition)*(exploration_radius+agent.nest_radius),np.sin(counter*degree_partition)*(exploration_radius+agent.nest_radius))
             counter += 1
             self.estimate_centroids(agent,counter, exploration_radius,exploration_period)
-        
     def estimate_centroids(self,agent,counter, exploration_radius, exploration_period,num_centroids=5,):
         sampled_radius = np.random.choice([1,2,3],1)[0]
         degree_partition = floor((2*3.14)/num_centroids)
@@ -27,5 +26,5 @@ class PlanningService:
         for i in range(num_centroids):
             agent.centroids.append((np.cos((i+1)*degree_partition)*(sampled_radius+exploration_radius)+agent.exploration_centroid[0],
                                     np.sin((i+1)*degree_partition)*(sampled_radius+exploration_radius)+agent.exploration_centroid[1]))
-            agent.centroids_schedule.append(counter*centroid_period)
+            agent.centroids_schedule.append((i+1)*centroid_period)
         
