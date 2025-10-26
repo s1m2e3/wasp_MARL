@@ -3,17 +3,18 @@ agent:
   y: 0
   c: 0
   communication_threshold: 0.9
-  v_max: 3
+  v_max: 1
   nest_radius: 5
   kappa: 2
-  sigma: 2
+  sigma: 1
   sensing_radius: 3
   loading_state: False
   communication_threshold_decay: 0.9
-  exploration_buffer_radius: 2
+  exploration_buffer_radius: 6
 simulator:
-  simulation_length: 100
-  proportion_explorers: 0.5
+  simulation_length: 1000
+  proportion_explorers: 0.3
   exploration_radius: 8
-  exploration_period: 50
-  num_agents: 10
+  exploration_period: 500
+  num_agents: 30
+  forget_frequency: 5

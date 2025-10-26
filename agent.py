@@ -27,3 +27,6 @@ class Agent:
     seen_neighbors: list = field(default_factory=list)
     communication_threshold_decay: float = 0.9
     exploration_buffer_radius: float = 2
+    forget_last: int=0
+    stored_messages: dict = field(default_factory=dict)
+    stored_positions: list = field(default_factory=list)
