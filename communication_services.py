@@ -20,9 +20,8 @@ class CommunicationService:
                 agent.communication_threshold = -missing_agent.num_agents*100
                 agent.role = Role.RESCUE
                 agent.finished_exploring = True
-                print("found agent", missing_agent.id,agent.id)
-                input('hipo')
                 agent.found_location = Position(missing_agent.x,missing_agent.y)
+                agent.num_agents = missing_agent.num_agents
         
     def generate_communication_message(self,agent,other_agent,t):
         if t not in agent.stored_messages:

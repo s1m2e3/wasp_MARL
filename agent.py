@@ -9,6 +9,7 @@ class Status(Enum):
     ENEMY = 1
     FOUND = 2
     EXPLORED = 3
+    SATURATED = 4
 
 @dataclass (frozen=False)
 class LostAgent:
@@ -23,6 +24,8 @@ class DecoyAgent:
     x: int
     y: str
     role: Status 
+    radius: int
+    num_agents: int = 0
 
 @dataclass (frozen=True)
 class Position:
@@ -54,6 +57,7 @@ class Agent:
     centroids_schedule: list = field(default_factory=list)
     v_max: float = 0
     a_max: float = 0
+    damp: float = 0
     nest_radius: float = 0
     kappa: float = 0
     sigma: float = 0

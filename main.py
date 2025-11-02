@@ -1,9 +1,26 @@
 import yaml
-from agent import Agent, Role, LostAgent
+from agent import Agent, Role, LostAgent, DecoyAgent, Position
 from simulator import Simulator
 import numpy as np
 import random
+import json
+import os
 
+def _make_serializable(obj):
+    if isinstance(obj, (DecoyAgent, Position)):
+        if isinstance(obj, DecoyAgent):
+            return {'id': obj.id, 'x': obj.x, 'y': obj.y, 'role': obj.role.value}
+        return {'x': obj.x, 'y': obj.y}
+    if isinstance(obj, np.integer):
+        return int(obj)
+    if isinstance(obj, np.floating):
+        return float(obj)
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, (list, tuple)):
+        return [_make_serializable(item) for item in obj]
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+    
 def main():
     """
     Main function to run the agent-based simulation.
@@ -35,6 +52,26 @@ def main():
     # Initialize and run the simulator
     simulator = Simulator()
     simulator.run_simulation(agents, lost_agents, **sim_config)
+    
+    output_dir = 'outputs'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    serializable_decoys = [_make_serializable(d) for d in simulator.decoys]
+    serializable_centroids = [_make_serializable(c) for c in simulator.exploration_centroids]
+    serializable_expansion = {k: [_make_serializable(p) for p in v] for k, v in simulator.exploration_centroids_expansion.items()}
+
+    data_to_save = {
+        "schedule": simulator.schedule,
+        "decoys": serializable_decoys,
+        "exploration_centroids": serializable_centroids,
+        "exploration_centroids_expansion": serializable_expansion
+    }
+
+    with open(os.path.join(output_dir, 'data.json'), 'w') as f:
+        json.dump(data_to_save, f, indent=4)
+
+
 
 if __name__ == "__main__":
     main()
