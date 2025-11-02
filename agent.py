@@ -28,6 +28,19 @@ class DecoyAgent:
 class Position:
     x: float
     y: float
+@dataclass (frozen=True)
+class Speed:
+    x: float
+    y: float
+@dataclass (frozen=True)
+class Acceleration:
+    x: float
+    y: float
+
+@dataclass (frozen=True)
+class Noise:
+    x: float
+    y: float
 
 @dataclass (frozen=False)
 class Agent:
@@ -40,9 +53,11 @@ class Agent:
     centroids: list = field(default_factory=list)
     centroids_schedule: list = field(default_factory=list)
     v_max: float = 0
+    a_max: float = 0
     nest_radius: float = 0
     kappa: float = 0
     sigma: float = 0
+    theta: float = 0
     sensing_radius: float = 0
     load_state: bool = False
     found_state: bool = False
@@ -50,10 +65,14 @@ class Agent:
     exploration_centroid: Position = Position(0,0)
     exploration_radius: float = 0
     t: int = 0
-    seen_neighbors: list = field(default_factory=list)
+    seen_neighbors: dict = field(default_factory=dict)
     communication_threshold_decay: float = 0.9
     exploration_buffer_radius: float = 2
     forget_last: int=0
     stored_messages: dict = field(default_factory=dict)
     stored_positions: list = field(default_factory=list)
     finished_exploring: bool = False
+    prev_speed: Speed = Speed(0,0)
+    prev_acceleration: Acceleration = Acceleration(0,0)
+    prev_noise: Noise = Noise(0,0)
+    

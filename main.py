@@ -25,11 +25,11 @@ def main():
     lost_agents = []
     for i in range(sim_config['num_lost_agents']):
         degree = np.random.uniform(0, 2*np.pi)
-        radius = np.random.uniform(sim_config['exploration_radius']+agent_config['exploration_buffer_radius'], sim_config['exploration_radius']+2*agent_config['exploration_buffer_radius'])
+        radius = np.random.uniform(sim_config['exploration_radius']+agent_config['exploration_buffer_radius']+agent_config['nest_radius'], sim_config['exploration_radius']+agent_config['nest_radius']+agent_config['exploration_buffer_radius'])
         random_x = np.cos(degree)*radius
         random_y = np.sin(degree)*radius
-        num_agents = random.randint(1,5)
-        agent = LostAgent(id=i, x=random_x, y=random_y, num_agents=num_agents)
+        num_required_agents = random.randint(1,5)
+        agent = LostAgent(id=i, x=random_x, y=random_y, num_agents=num_required_agents)
         lost_agents.append(agent)
 
     # Initialize and run the simulator

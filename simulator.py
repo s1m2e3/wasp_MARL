@@ -26,40 +26,65 @@ class Simulator:
         planner.assign_roles(agents,proportion_explorers)
         required_explorers = floor(proportion_explorers*len(agents))
         planned_routes = False
+        fig, ax = plt.subplots(figsize=(8, 8))   # one axes for everything
         for t in range(simulation_length):
             self.schedule[t] = []
             for i in range(len(agents)):
                 agents = self.step(agents[i],agents,lost_agents,t, exploration_period, mover, communicator, memorizer, behavior_changer, forget_frequency)
-                explorers= [explorers .role == Role.EXPLORER for explorers in agents]
+                explorers= [explorers.role == Role.EXPLORER for explorers in agents]
                 if sum(explorers) == required_explorers and not planned_routes:
                     planner.plan_routes(agents,exploration_radius,exploration_period)
                     planned_routes = True
+                    explorers = [explorers for explorers in agents if explorers.role == Role.EXPLORER]
+                    # Add planning visualization from plan_routes
+                    for agent in explorers:
+                        if agent.centroids:
+                            positions = np.array([[p.x, p.y] for p in agent.centroids])
+                            ax.scatter(positions[:, 0], positions[:, 1], color='purple', marker='*')
+                            ax.scatter(agent.exploration_centroid.x, agent.exploration_centroid.y, color='red', marker='X', s=150)
+                            for pos in positions:
+                                circle = plt.Circle((pos[0], pos[1]), agent.sensing_radius, fill=False, color='blue', alpha=0.3)
+                                ax.add_patch(circle)
+                    nest_circle = plt.Circle((0, 0), agents[0].nest_radius, color='black', fill=True, alpha=0.2)
+                    ax.add_patch(nest_circle)
                 self.schedule[t].extend([agents[i].id,agents[i].x,agents[i].y,agents[i].role.value])
-            if t == 10:
+            if t == 200:
                 import seaborn as sns
                 explorers= [(explorers.role.value,explorers.id) for explorers in agents if explorers.role == Role.EXPLORER]
                 df = pd.DataFrame.from_dict(self.schedule).T.to_numpy()
                 df = df.reshape(num_agents*(t+1),4)
                 df = pd.DataFrame(df)
-                print(df.head())
-                input("in this step")
+                df.columns = ['id', 'x', 'y', 'role']
+                df['time'] = np.repeat(np.arange(t + 1), num_agents)
                 
-                agent_ids = sorted(df.iloc[:,0].astype(int).unique())
-                palette = sns.color_palette("viridis", len(agent_ids))
-                color_map = dict(zip(agent_ids, palette))
-
+                # Filter out the first 10 steps from the DataFrame
+                # df = df[(df['role'] == 1) | (df['role'] == 3)]
+                # df = df[(df['time'] >= 100)]
+                # Use a categorical color palette for agents
+                palette = sns.color_palette("tab20", n_colors=num_agents)
+                
                 # Role 1: EXPLORER, Role 2: COMMUNICATOR, Role 3: RESCUE
-                dashes_map = {1: (2, 2), 2: "", 3: (4, 1, 1, 1)}
-                sns.lineplot(x=df.iloc[:,1], y=df.iloc[:,2], 
-                             hue=df.iloc[:,0].astype(int), palette=color_map, 
-                             style=df.iloc[:,3].astype(int), dashes=dashes_map)
-                for agent in agents:
-                    for centroid in agent.centroids:
-                        plt.scatter(x=centroid.x, y=centroid.y, color=color_map[agent.id])
+                # Define a different marker for each role
+                marker_map = {1: "o", 2: "s", 3: "X"}
+                
+                # Create a scatter plot with color per agent and marker per role
+                ax = sns.scatterplot(data=df, x='x', y='y',
+                                hue='id', palette=palette,
+                                style='role', markers=marker_map,
+                                s=100,ax=ax) # s is marker size
+                
+                # Find the last position for each agent
+                last_positions_df = df.loc[df.groupby('id')['time'].idxmax()]
+                # Add a circular patch with radius 2 to the last step of each agent
+                for _, row in last_positions_df.iterrows():
+                    circle = plt.Circle((row['x'], row['y']), radius=2, color='gray', fill=False, linestyle='--', alpha=0.8)
+                    ax.add_patch(circle)
+                
+
+                plt.xlabel("x-position")
+                plt.ylabel("y-position")
                 plt.show()
             # print([(agent.id,agent.x,agent.y,agent.role) for agent in agents])
-            print(t)
-            input('hipox')
             
         if self.decoys:
             decoys_data = np.array([[decoy.x, decoy.y, decoy.role.value] for decoy in self.decoys])
@@ -82,13 +107,16 @@ class Simulator:
             print(self.decoys)
     def step(self,agent,agents,lost_agents,t, exploration_period, mover, communicator, memorizer, behavior_changer, forget_frequency=5):
         # --- Logging agent and simulation state at the beginning of the step ---
-        # logging.info(f"--- Time: {t}, Agent: {agent.id}, Role: {agent.role.name} ---")
+        logging.info(f"--- Time: {t}, Agent: {agent.id}, Role: {agent.role.name}, Finished Exploring: {agent.finished_exploring} ---")
         # logging.info(f"Full Agent List State: {[(agent.id,agent.x,agent.y,agent.role.name) for agent in agents]}")
-        # print("\n\n\n")
+        print("\n")
         mover.move(agent,agents,t)
         communicator.sense(agent,agents, lost_agents,t)
         behavior_changer.drop_decoy_found(agent,self.decoys)
         behavior_changer.drop_decoy_explored(agent,self.decoys)
-        memorizer.forget_seen_neighbors(agent,t,forget_frequency)
+        if t > 5:
+            memorizer.forget_seen_neighbors(agent)
+        if t> 3:
+            memorizer.forget_stored_positions(agent)
         memorizer.update_roles(agent)
         return agents

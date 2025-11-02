@@ -7,16 +7,21 @@ class CommunicationService:
         self.logger = logging.getLogger(__name__)
 
     def sense(self,agent,agents,missing_agents,t):
+        if t not in agent.seen_neighbors:
+            agent.seen_neighbors[t]=[]
         for other_agent in agents:
             if agent.id != other_agent.id:
                 if in_circle(agent.x, agent.y, other_agent.x, other_agent.y, agent.sensing_radius):
-                    agent.seen_neighbors.append(other_agent)
+                    agent.seen_neighbors[t].append(other_agent.id)
                     self.generate_communication_message(agent,other_agent,t)
         for missing_agent in missing_agents:
             if in_circle(agent.x, agent.y, missing_agent.x, missing_agent.y, agent.sensing_radius) and not agent.found_state:
                 agent.found_state = True
                 agent.communication_threshold = -missing_agent.num_agents*100
                 agent.role = Role.RESCUE
+                agent.finished_exploring = True
+                print("found agent", missing_agent.id,agent.id)
+                input('hipo')
                 agent.found_location = Position(missing_agent.x,missing_agent.y)
         
     def generate_communication_message(self,agent,other_agent,t):
@@ -30,7 +35,6 @@ class CommunicationService:
         if other_agent.communication_threshold >1 and agent.role == Role.COMMUNICATOR and other_agent.role == Role.EXPLORER:
             agent.communication_threshold += 100
             other_agent.communication_threshold -= 100
-            print("communication from explorer to communicator")
         if agent.role == Role.COMMUNICATOR and other_agent.role == Role.RESCUE and other_agent.communication_threshold <-1:
             agent.communication_threshold -= 100
             other_agent.communication_threshold += 100

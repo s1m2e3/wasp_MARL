@@ -22,14 +22,17 @@ class PlanningService:
         num_explorers = sum(agent.role == Role.EXPLORER for agent in agents)       
         degree_partition = round(2*3.14/num_explorers,2)
         counter = 1
-        explorer_agents = [explorers for explorers in agents if explorers.role == Role.EXPLORER] 
+        explorer_agents = [explorers for explorers in agents if explorers.role == Role.EXPLORER]
+        communicator_agents = [communicator for communicator in agents if communicator.role == Role.COMMUNICATOR]
         for agent in explorer_agents:
             agent.exploration_centroid = Position(np.cos(counter*degree_partition)*(exploration_radius+agent.nest_radius),np.sin(counter*degree_partition)*(exploration_radius+agent.nest_radius))
             counter += 1
-            self.estimate_centroids(agent,counter, exploration_radius,exploration_period)
-            
+            self.estimate_centroids(agent,exploration_radius,exploration_period)
+        for agent in communicator_agents:
+            agent.nest_radius += random.uniform(-2.0,0.5)
+        
     def estimate_centroids(self,agent, exploration_radius, exploration_period,num_centroids=5,):
-        degree_partition = floor((2*3.14)/num_centroids)
+        degree_partition = np.round((2*3.14)/num_centroids,2)
         centroid_period = floor(exploration_period/num_centroids)
         for i in range(num_centroids):
             agent.centroids.append(Position(np.cos((i+1)*degree_partition)*(exploration_radius)+agent.exploration_centroid.x,
