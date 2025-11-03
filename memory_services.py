@@ -24,6 +24,12 @@ class MemoryService:
             if agent.communication_threshold == -100:
                 agent.communication_threshold = 0
                 agent.role = Role.RESCUE
+                agent.follower = True
         if abs(agent.communication_threshold)<1 and agent.role == Role.EXPLORER and not agent.finished_exploring:
             agent.load_state = True
-                
+    def update_leader(self,agent):
+        if agent.role == Role.RESCUE and not agent.follower and not agent.updated and agent.communication_threshold==0:
+            agent.kappa = agent.kappa/3
+            agent.v_max = agent.v_max/2
+            agent.updated = True
+    

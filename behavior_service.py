@@ -21,4 +21,3 @@ class BehaviorService:
             num_agents = len([agent for agent in agents if in_circle(agent.x,agent.y,decoy.x,decoy.y,decoy.radius) and agent.role == Role.RESCUE])
             if num_agents == decoy.num_agents:
                 decoy.role = Status.SATURATED
-            

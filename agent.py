@@ -79,4 +79,4 @@ class Agent:
     prev_speed: Speed = Speed(0,0)
     prev_acceleration: Acceleration = Acceleration(0,0)
     prev_noise: Noise = Noise(0,0)
-    
+    updated:bool=False

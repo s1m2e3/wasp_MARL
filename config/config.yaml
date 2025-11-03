@@ -6,18 +6,19 @@ agent:
   v_max: 1.5
   a_max: 0.5
   damp: 10.0
-  nest_radius: 2
+  nest_radius: 3
   kappa: 8.0
-  sigma: 0.1
+  sigma: 1.5
   theta: 0.5
   sensing_radius: 1
   load_state: False
   communication_threshold_decay: 0.9
   exploration_buffer_radius: 2.0
+  updated: False
 simulator:
   simulation_length: 1000
   proportion_explorers: 0.3
-  exploration_radius: 2.5
+  exploration_radius: 3
   exploration_period: 1000
   num_agents: 20
   forget_frequency: 5

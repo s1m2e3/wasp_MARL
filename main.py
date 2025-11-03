@@ -9,7 +9,7 @@ import os
 def _make_serializable(obj):
     if isinstance(obj, (DecoyAgent, Position)):
         if isinstance(obj, DecoyAgent):
-            return {'id': obj.id, 'x': obj.x, 'y': obj.y, 'role': obj.role.value}
+            return {'id': obj.id, 'x': obj.x, 'y': obj.y, 'role': obj.role.value,'num_agents': obj.num_agents}
         return {'x': obj.x, 'y': obj.y}
     if isinstance(obj, np.integer):
         return int(obj)
@@ -45,7 +45,7 @@ def main():
         radius = np.random.uniform(sim_config['exploration_radius']+agent_config['exploration_buffer_radius']+agent_config['nest_radius'], sim_config['exploration_radius']+agent_config['nest_radius']+agent_config['exploration_buffer_radius'])
         random_x = np.cos(degree)*radius
         random_y = np.sin(degree)*radius
-        num_required_agents = random.randint(1,5)
+        num_required_agents = 3
         agent = LostAgent(id=i, x=random_x, y=random_y, num_agents=num_required_agents)
         lost_agents.append(agent)
 

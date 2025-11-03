@@ -31,20 +31,30 @@ class MovementService:
         attraction_x,attraction_y = self.attractive_movement(agent,close_communicators)
         new_x,new_y = self.deterministic_integration(agent,[attraction_x],[attraction_y],dt)
         return new_x,new_y
-    def toward_decoy_movement(self,agent,decoys,dt=0.1):
-        decoys_in_agent_radius = [in_circle(decoy.x,decoy.y,agent.x,agent.y,agent.sensing_radius) for decoy in decoys if decoy.role==Status.SATURATED]
-        if len(decoys_in_agent_radius)>0:
-            nearby_decoys = self.get_close_decoys(agent,decoys)
-            rescue_decoys = [Position(decoy.x,decoy.y) for decoy in decoys if decoy.id in nearby_decoys and decoy.role == Status.FOUND]
-            explored_decoys = [Position(decoy.x,decoy.y) for decoy in decoys if decoy.id in nearby_decoys and decoy.role == Status.EXPLORED]
-            saturated_decoys = [Position(decoy.x,decoy.y) for decoy in decoys if decoy.id in nearby_decoys and decoy.role == Status.SATURATED and not in_circle(agent.x,agent.y,decoy.x,decoy.y,agent.sensing_radius)]
-            attraction_x,attraction_y = self.attractive_movement(agent,rescue_decoys)
-            # repulsive_explored_x,repulsive_explored_y = self.repulsive_movement(agent,explored_decoys)
-            repulsive_saturated_x, repulsive_saturated_y = self.repulsive_movement(agent,saturated_decoys)
-            new_x,new_y = self.deterministic_integration(agent,[attraction_x,repulsive_saturated_x],[attraction_y,repulsive_saturated_y],dt)
+    def toward_decoy_movement(self,agent,agents,dt=0.1):
+        nearby_agents = self.get_neighbors(agent,agents)
+        rescue = [agent_.id for agent_ in agents if agent_.role == Role.RESCUE and agent_.id != agent.id]
+        if agent.follower:
+            if rescue:
+                leader = [agent_id for agent_id in rescue if agent_id in nearby_agents and agent_id == agent.following_id]
+                if leader:
+                    leader = agents[leader[0]]
+                    attraction_x,attraction_y = self.attractive_movement(agent,[leader])
+                    new_x,new_y = self.deterministic_integration(agent,[attraction_x],[attraction_y],dt)
+                    
+                else:
+                    new_x,new_y = self.movement_agent_communicator(agent,agents,dt)
+                    new_x,new_y = self.apply_communicator_constraints(agent,new_x,new_y)
+            else:
+                new_x,new_y = self.movement_agent_communicator(agent,agents,dt)
+                new_x,new_y = self.apply_communicator_constraints(agent,new_x,new_y)
         else:
-            new_x = agent.x
-            new_y = agent.y
+            if len(rescue)==agent.num_agents:
+                attraction_x,attraction_y = self.attractive_movement(agent,[agent.exploration_centroid])
+                new_x,new_y = self.deterministic_integration(agent,[attraction_x],[attraction_y],dt)
+            else:
+                new_x,new_y = agent.x,agent.y
+        new_x,new_y = self.apply_speed_constraints(agent,new_x,new_y)
         return new_x,new_y
 
     def estimate_rescue_movement(self,agent,agents,decoys,dt=0.1):
@@ -56,11 +66,11 @@ class MovementService:
                 new_x,new_y = self.deterministic_integration(agent,[attraction_x],[attraction_y],dt)
             new_x,new_y = self.apply_explorer_constraints(agent,new_x,new_y)
         if agent.communication_threshold == 0:
-            new_x,new_y = self.toward_decoy_movement(agent,decoys,dt)
+            new_x,new_y = self.toward_decoy_movement(agent,agents,dt)
             new_x,new_y = self.apply_speed_constraints(agent,new_x,new_y)
         agent.stored_positions.append(Position(agent.x,agent.y))
         agent.x = np.round(new_x,2)
-        agent.y = np.round(new_y,2)  
+        agent.y = np.round(new_y,2)
     def repulsive_movement(self, agent, positions):
         return sum([agent.x-position.x for position in positions]),sum([agent.y-position.y for position in positions])
     def attractive_movement(self, agent, positions):
@@ -151,13 +161,14 @@ class MovementService:
             neighbors.extend(neighbors_)
         seen_neighbors = [agent_ for agent_ in nearby_agents if agent_ in neighbors]
         not_seen_neighbors = [agent_ for agent_ in nearby_agents if agent_ not in neighbors]
+        
         seen_neighbors = [Position(agent_.x,agent_.y) for agent_ in agents if agent_.id in seen_neighbors]
         not_seen_neighbors = [Position(agent_.x,agent_.y) for agent_ in agents if agent_.id in not_seen_neighbors]
         
         attraction_x,attraction_y = self.attractive_movement(agent,not_seen_neighbors)
         repulsive_neighbors_x,repulsive_neighbors_y = self.repulsive_movement(agent,seen_neighbors)
-        repulsive_past_x, repulsive_past_y = self.repulsive_movement(agent,agent.stored_positions)
-        new_x,new_y = self.stochastic_integration(agent,[attraction_x,repulsive_neighbors_x,repulsive_past_x],[attraction_y,repulsive_neighbors_y,repulsive_past_y],dt)
+        # new_x,new_y = self.deterministic_integration(agent,[attraction_x,repulsive_neighbors_x],[attraction_y,repulsive_neighbors_y],dt)
+        new_x,new_y = self.stochastic_integration(agent,[attraction_x,repulsive_neighbors_x],[attraction_y,repulsive_neighbors_y],dt)
         return new_x,new_y
     def apply_explorer_constraints(self,agent,new_x,new_y):
         constraints = [self.max_speed_constraint_condition(agent,agent.x,agent.y,new_x,new_y)]            

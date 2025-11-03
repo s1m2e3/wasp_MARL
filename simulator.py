@@ -51,9 +51,10 @@ class Simulator:
         behavior_changer.drop_decoy_found(agent,self.decoys,self.radius_decoys)
         behavior_changer.drop_decoy_explored(agent,self.decoys,self.radius_decoys)
         behavior_changer.saturate_decoys(agents,decoys)
-        if t > 5:
+        if t > 3:
             memorizer.forget_seen_neighbors(agent)
         if t> 3:
             memorizer.forget_stored_positions(agent)
+        memorizer.update_leader(agent)
         memorizer.update_roles(agent)
         return agents
