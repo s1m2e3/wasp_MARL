@@ -166,6 +166,11 @@ run.
 
 Feeds the CSER 2026 submission *Swarm Intelligence for Generalist Agents
 Coordination in CSAR Missions* (Cornejo, S., Salado, A.). Listed under Projects as
-*Simulation of paper-wasp feeding dynamics*.
+*Paper-Wasp Feeding Dynamics Simulation*.
+
+Note on the repository name: despite the `_MARL` suffix, there is no
+reinforcement learning here. Coordination is rule-based — roles, stigmergic
+decoys, and local sensing — with no reward, policy, or training loop. `torch` is
+used only for the autograd gradient steps in `movement_services.py`.
 
 Author: Samuel Cornejo (<samuelcornejo@arizona.edu>)
