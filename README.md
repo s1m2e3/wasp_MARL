@@ -1,7 +1,7 @@
-# wasp_MARL
+# wasp_CSAR
 
 A decentralized multi-agent simulation of wasp-colony foraging logistics, applied
-to coordinated search and rescue. No agent has a map, a global plan, or a central
+to combat search and rescue. No agent has a map, a global plan, or a central
 scheduler: coverage and rescue emerge from local sensing, pairwise communication,
 and stigmergic markers dropped in the environment.
 
@@ -12,7 +12,7 @@ return with loads, nurses redistribute them, and the allocation that results is
 efficient without anyone computing it. The logistical structure of that problem —
 agents that must cover unknown ground, find things, and recruit enough help to
 extract them, all without global state — is the same structure as a
-Coordinated Search and Rescue (CSAR) mission.
+Combat Search and Rescue (CSAR) mission.
 
 This repo reproduces the wasp feeding dynamics as an agent-based model and then
 uses the control algorithms it exposes as a decentralized CSAR controller.
@@ -168,9 +168,11 @@ Feeds the CSER 2026 submission *Swarm Intelligence for Generalist Agents
 Coordination in CSAR Missions* (Cornejo, S., Salado, A.). Listed under Projects as
 *Paper-Wasp Feeding Dynamics Simulation*.
 
-Note on the repository name: despite the `_MARL` suffix, there is no
-reinforcement learning here. Coordination is rule-based — roles, stigmergic
-decoys, and local sensing — with no reward, policy, or training loop. `torch` is
-used only for the autograd gradient steps in `movement_services.py`.
+Note on the repository name: this repo was previously `wasp_MARL`, which was
+misleading — there is no reinforcement learning here. Coordination is rule-based
+— roles, stigmergic decoys, and local sensing — with no reward, policy, or
+training loop. `torch` is used only for the autograd gradient steps in
+`movement_services.py`. The `process_data.R` path below still refers to the old
+directory name.
 
 Author: Samuel Cornejo (<samuelcornejo@arizona.edu>)
